@@ -51,14 +51,17 @@
 
 int gameover = false,
     score = 0,
-    snakeX[100] = WIDTH / 2,
-    snakeY[100] = HEIGHT / 2,
+    snakeX[100],
+    snakeY[100],
     snake_length = 1,
     foodX = 0, foodY = 0,
     dirX = 0, dirY = 0;
 
 void setup()
 {
+    snakeX[0] = WIDTH / 2;
+    snakeY[0] = HEIGHT / 2;
+
     srand(time(NULL)); // Initialize the random number generator with the current time
     foodX = 1 + rand() % (WIDTH - 2);
     foodY = 1 + rand() % (HEIGHT - 2);
