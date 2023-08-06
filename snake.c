@@ -46,112 +46,91 @@
 #define BACKGROUND_LIGHT_YELLOW (BACKGROUND_YELLOW | BACKGROUND_INTENSITY)
 #define BACKGROUND_BRIGHT_WHITE (BACKGROUND_WHITE | BACKGROUND_INTENSITY)
 
-#define true 0B1
-#define false 0B0
+#define true 0b1
+#define false 0b0
+#define short 32768
+#define null (void *)0b0
 
 int gameover = false,
     score = 0,
-    snakeX[100],
-    snakeY[100],
+    snakeX[short],
+    snakeY[short],
     snake_length = 1,
     foodX = 0, foodY = 0,
     dirX = 0, dirY = 0;
+
+HANDLE hConsole = null;
+CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
 
 void setup()
 {
     snakeX[0] = WIDTH / 2;
     snakeY[0] = HEIGHT / 2;
 
-    srand(time(NULL)); // Initialize the random number generator with the current time
+    srand(time(null)); // Initialize the random number generator with the current time
     foodX = 1 + rand() % (WIDTH - 2);
     foodY = 1 + rand() % (HEIGHT - 2);
+
+    dirX = 0;
+    dirY = 1; // Move down
 }
 
-void clearConsole()
+void refillRenderZone()
 {
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD homeCoords = {0, 2}; // Start from the top-left corner of the game field
-    DWORD count;
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-
-    if (hOut == INVALID_HANDLE_VALUE)
-    {
-        return;
-    }
-
-    if (!GetConsoleScreenBufferInfo(hOut, &csbi))
-    {
-        return;
-    }
-
-    // Clear the game field area
-    SetConsoleCursorPosition(hOut, homeCoords);
+    SetConsoleCursorPosition(hConsole, (COORD){0, 2}); // Skip 2 lines
 }
 
-CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-WORD savedAttributes;
+void draw(text, color)
+{
+    GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+    SetConsoleTextAttribute(hConsole, color);
+    printf(text);
+    SetConsoleTextAttribute(hConsole, consoleInfo.wAttributes);
+}
 
 // Function to draw the game field and snake
-void draw(hConsole)
+// Function to render the game screen
+void render()
 {
-    clearConsole(); // Clear the console before drawing the new frame
+    refillRenderZone(); // Clear the console before drawing the new frame
+
     int i, j;
-    for (i = 0; i < HEIGHT; i++)
+
+    for (i = 0; i < HEIGHT; i++) // Loop through the game board rows
     {
-        for (j = 0; j < WIDTH; j++)
+        for (j = 0; j < WIDTH; j++) // Loop through the game board columns
         {
-            if (i == 0 || i == HEIGHT - 1 || j == 0 || j == WIDTH - 1)
-            {
-
-                GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-                savedAttributes = consoleInfo.wAttributes;
-                SetConsoleTextAttribute(hConsole, BACKGROUND_CYAN);
-                printf("  "); // Add a border
-                SetConsoleTextAttribute(hConsole, savedAttributes);
-            }
-            else if (i == snakeY[0] && j == snakeX[0])
-            {
-                GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-                savedAttributes = consoleInfo.wAttributes;
-
-                SetConsoleTextAttribute(hConsole, BACKGROUND_WHITE | FOREGROUND_BLACK);
-                printf("^^"); // Head with eyes
-                SetConsoleTextAttribute(hConsole, savedAttributes);
-            }
+            if (i == 0 || i == HEIGHT - 1 || j == 0 || j == WIDTH - 1) // Check if it's a border cell
+                draw("  ", BACKGROUND_CYAN);                           // Draw a cyan-colored border
+            else if (i == snakeY[0] && j == snakeX[0])                 // Check if it's the snake's head cell
+                draw("^^", BACKGROUND_WHITE | FOREGROUND_BLACK);       // Draw the snake's head with eyes
+            // Check if it's the food cell
             else if (i == foodY && j == foodX)
-            {
-                GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-                savedAttributes = consoleInfo.wAttributes;
-
-                SetConsoleTextAttribute(hConsole, BACKGROUND_LIGHT_RED);
-                printf("  "); // Apple
-                SetConsoleTextAttribute(hConsole, savedAttributes);
-            }
+                draw("  ", BACKGROUND_LIGHT_RED); // Draw an apple (food)
             else
             {
-                int isBody = 0;
-                for (int k = 1; k < snake_length; k++)
+                int isBody = false;
+                for (int k = 1; k < snake_length; k++) // Loop through the snake's body cells
                 {
-                    if (snakeX[k] == j && snakeY[k] == i)
+
+                    if (snakeX[k] == j && snakeY[k] == i) // Check if it's a cell in the snake's body
                     {
-                        GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-                        savedAttributes = consoleInfo.wAttributes;
-                        SetConsoleTextAttribute(hConsole, BACKGROUND_GRAY | FOREGROUND_GRAY);
-                        printf("##"); // Body
-                        SetConsoleTextAttribute(hConsole, savedAttributes);
-                        isBody = 1;
+                        draw("##", BACKGROUND_GRAY | FOREGROUND_GRAY); // Draw the snake's body segment
+                        isBody = true;
                         break;
                     }
                 }
                 if (!isBody)
                 {
-                    printf("  "); // Draw two empty spaces
+                    printf("  "); // Draw two empty spaces for an empty cell
                 }
             }
         }
-        printf("\n");
+        printf("\n"); // Move to the next row
     }
-    printf("Score: %d\n", score);
+
+    draw("SCORE", BACKGROUND_YELLOW); // Draw the "SCORE" label in yellow
+    printf(": %d\n", score);          // Display the current score value
 }
 
 // Function to handle user input
@@ -200,9 +179,9 @@ void input()
 // Function to update the game logic
 void logic()
 {
-    int prevX = snakeX[0];
-    int prevY = snakeY[0];
-    int prev2X, prev2Y;
+    int prevX = snakeX[0],
+        prevY = snakeY[0],
+        prev2X, prev2Y;
     snakeX[0] += dirX;
     snakeY[0] += dirY;
 
@@ -229,10 +208,43 @@ void logic()
     // Check if the snake eats the food
     if (snakeX[0] == foodX && snakeY[0] == foodY)
     {
-        score += 10; // Increase the score
         // Generate new random coordinates for food within the game field (excluding the borders)
-        foodX = 1 + rand() % (WIDTH - 2);
-        foodY = 1 + rand() % (HEIGHT - 2);
+        do
+        {
+            foodX = 1 + rand() % (WIDTH - 2);
+            foodY = 1 + rand() % (HEIGHT - 2);
+        } while (foodX == snakeX[0] && foodY == snakeY[0]);
+
+        // Check if the food spawns on the snake's body
+        int spawnOnBody = true;
+        for (int i = 1; i < snake_length; i++)
+        {
+            if (foodX == snakeX[i] && foodY == snakeY[i])
+            {
+                spawnOnBody = true;
+                break;
+            }
+        }
+
+        // If the food spawns on the snake's body, try generating new coordinates again
+        while (spawnOnBody)
+        {
+            foodX = 1 + rand() % (WIDTH - 2);
+            foodY = 1 + rand() % (HEIGHT - 2);
+
+            spawnOnBody = false;
+            for (int i = 0; i < snake_length; i++)
+            {
+                // If the coordinates of the Apple are on the body of the snake, then the cycle continues
+                if (foodX == snakeX[i] && foodY == snakeY[i])
+                {
+                    spawnOnBody = true;
+                    break;
+                }
+            }
+        }
+
+        score += 10;    // Increase the score
         snake_length++; // Increase the length of the snake
     }
 
@@ -246,11 +258,13 @@ void logic()
         }
     }
 
-    // Check for collision with the wall
+    /*
+   // Check for collision with the wall
     if (snakeX[0] == 0 || snakeX[0] == WIDTH - 1 || snakeY[0] == 0 || snakeY[0] == HEIGHT - 1)
     {
         gameover = true; // Game over if the snake hits the border
     }
+*/
 }
 
 int main()
@@ -258,28 +272,34 @@ int main()
     SetConsoleTitleA("Tiny Snake");
     int buffer[] = {WIDTH * 2 + 1, HEIGHT + 8};
 
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleScreenBufferSize(hConsole, (COORD){buffer[0], buffer[1]});
 
     SMALL_RECT windowSize = {0, 0, buffer[0] - 1, buffer[1] - 1};
     SetConsoleWindowInfo(hConsole, true, &windowSize);
 
     setlocale(LC_ALL, ".65001");
-    printf("Coded by DosX-dev (GitHub)\nUSE ONLY ENGLISH KEYBOARD LAYOUT! (WASD)\n");
-    setup(); // Initialize the game
 
-    dirX = 0;
-    dirY = 1; // Move down
+    printf("Coded by DosX-dev (GitHub)\nUSE ONLY ENGLISH KEYBOARD LAYOUT! (WASD)\n");
+
+    setup(); // Initialize the game
 
     while (!gameover)
     {
-        draw(hConsole); // Draw the current state of the game
-        input();        // Handle user input
-        logic();        // Update the game logic
+        render(); // Draw the current state of the game
+        input();  // Handle user input
+        logic();  // Update the game logic
 
         Sleep(SPEED_DELAY); // Add a delay to control the snake's speed
     }
-    printf("\n\n====================\nGame Over!\nYour score: %d\n====================\nPress X to exit", score);
+
+    printf("\n");
+
+    draw("============\n=", BACKGROUND_RED | FOREGROUND_RED);
+    draw("GAME OVER!", BACKGROUND_WHITE | FOREGROUND_RED);
+    draw("=\n============", BACKGROUND_RED | FOREGROUND_RED);
+
+    printf("\nPress X to exit");
 
     while (true)
     {
