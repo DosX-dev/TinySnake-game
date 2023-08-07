@@ -65,7 +65,7 @@ CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
 void setup()
 {
     snakeX[0] = WIDTH / 2;
-    snakeY[0] = HEIGHT / 2;
+    snakeY[0] = HEIGHT / 2; // Set snake head at center of game zone
 
     srand(time(null)); // Initialize the random number generator with the current time
     foodX = 1 + rand() % (WIDTH - 2);
