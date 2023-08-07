@@ -267,9 +267,25 @@ void logic()
 */
 }
 
+int getBitness()
+{
+    return sizeof(void *) == 0x4 ? 32 : 64;
+}
+
 int main()
 {
-    SetConsoleTitleA("Tiny Snake");
+
+    char title[100] = "Tiny Snake (x";
+
+    // Преобразуем числовое значение указателя в строку с помощью sprintf
+    char sizeStr[5];
+    sprintf(sizeStr, "%d", getBitness());
+
+    strcat(title, sizeStr);
+    strcat(title, ")");
+
+    SetConsoleTitleA(title);
+
     int buffer[] = {WIDTH * 2 + 1, HEIGHT + 8};
 
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -295,9 +311,9 @@ int main()
 
     printf("\n");
 
-    draw("============\n=", BACKGROUND_RED | FOREGROUND_RED);
-    draw("GAME OVER!", BACKGROUND_WHITE | FOREGROUND_RED);
-    draw("=\n============", BACKGROUND_RED | FOREGROUND_RED);
+    draw("==============\n=", BACKGROUND_RED | FOREGROUND_RED);
+    draw(" GAME OVER! ", BACKGROUND_WHITE | FOREGROUND_RED);
+    draw("=\n==============", BACKGROUND_RED | FOREGROUND_RED);
 
     printf("\nPress X to exit");
 
