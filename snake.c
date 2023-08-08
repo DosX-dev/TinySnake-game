@@ -94,29 +94,20 @@ void render() {
     {
         for (j = 0; j < WIDTH; j++)  // Loop through the game board columns
         {
-            if (i == 0 || i == HEIGHT - 1 || j == 0 ||
-                j == WIDTH - 1)               // Check if it's a border cell
-                draw("  ", BACKGROUND_CYAN);  // Draw a cyan-colored border
-            else if (i == snakeY[0] &&
-                     j == snakeX[0])  // Check if it's the snake's head cell
-                draw("^^",
-                     BACKGROUND_WHITE |
-                         FOREGROUND_BLACK);  // Draw the snake's head with eyes
-            // Check if it's the food cell
-            else if (i == foodY && j == foodX)
-                draw("  ", BACKGROUND_LIGHT_RED);  // Draw an apple (food)
+            if (i == 0 || i == HEIGHT - 1 || j == 0 || j == WIDTH - 1)  // Check if it's a border cell
+                draw("  ", BACKGROUND_CYAN);                            // Draw a cyan-colored border
+            else if (i == snakeY[0] && j == snakeX[0])                  // Check if it's the snake's head cell
+                draw("^^", BACKGROUND_WHITE | FOREGROUND_BLACK);        // Draw the snake's head with eyes
+            else if (i == foodY && j == foodX)                          // Check if it's the food cell
+                draw("  ", BACKGROUND_LIGHT_RED);                       // Draw an apple (food)
             else {
                 int isBody = false;
-                for (int k = 1; k < snake_length;
-                     k++)  // Loop through the snake's body cells
+                for (int k = 1; k < snake_length; k++)  // Loop through the snake's body cells
                 {
-                    if (snakeX[k] == j &&
-                        snakeY[k] ==
-                            i)  // Check if it's a cell in the snake's body
+                    if (snakeX[k] == j && snakeY[k] == i)  // Check if it's a cell in the snake's body
                     {
-                        draw("##", BACKGROUND_GRAY |
-                                       FOREGROUND_GRAY);  // Draw the snake's
-                                                          // body segment
+                        draw("##", BACKGROUND_GRAY | FOREGROUND_GRAY);  // Draw the snake's
+                                                                        // body segment
                         isBody = true;
                         break;
                     }
