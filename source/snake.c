@@ -1,4 +1,5 @@
 // Coded by DosX
+// GitHub: https://github.com/DosX-dev
 
 #include <conio.h>
 #include <stdio.h>
@@ -15,13 +16,14 @@
 
 #define SPEED_DELAY 100
 
-#define true 0b1
-#define false 0b0
-#define short 32768
-#define null (void *)0b0
+#define true 0b1          //
+#define false 0b0         // I know there are predefined values ​​like TRUE, FALSE, NULL
+#define short 32768       // But I prefer using these values ​​in small case.
+#define null (void *)0b0  //
 
 int gameover = false,
-    score = 0, snakeX[short], snakeY[short],
+    score = 0,
+    snakeX[short], snakeY[short],
     snake_length = 1,
     foodX = 0, foodY = 0,
     dirX = 0, dirY = 0;
@@ -211,11 +213,20 @@ void logic() {
 */
 }
 
-int getBitness() { return sizeof(void *) == 0x4 ? 32 : 64; }
+// int getBitness() { return sizeof(void *) == 0x4 ? 32 : 64; } // Oh ok, legacy code
+
+#if defined(__i386__)  // i386 (32-bit)
+#define bitness 32
+#elif defined(__x86_64__)  // x86-64 (AMD64)
+#define bitness 64
+#else
+#define bitness 32
+#endif
 
 int main() {
     char title[short];
-    sprintf(title, "Tiny Snake (x%d)", getBitness());
+
+    sprintf(title, "Tiny Snake (x%d)", bitness);
 
     SetConsoleTitleA(title);
 
@@ -258,3 +269,5 @@ int main() {
         }
     }
 }
+
+// I like coffee. Preferably with milk
