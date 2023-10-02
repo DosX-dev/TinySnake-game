@@ -10,5 +10,6 @@ Little game "Snake" for Windows in C (.EXE size is 3.5 kilobytes)
  * 10 points for each apple
  * Use the English keyboard layout to control
  * Don't resize the window during gameplay if you don't want to break the renderer
+ * You have to enjoy the game
 
 Enjoy! ;)
