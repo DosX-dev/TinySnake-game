@@ -1,3 +1,5 @@
+// Coded by DosX
+// GitHub: https://github.com/DosX-dev
 // Windows console colors module for TinySnake
 
 // Foreground text colors
