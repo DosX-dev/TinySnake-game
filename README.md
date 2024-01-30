@@ -13,3 +13,10 @@ Little game "Snake" for Windows in C (.EXE size is 3.5 kilobytes)
  * You have to enjoy the game
 
 Enjoy! ;)
+
+| Requirement | Minimum |
+|---|---|
+| Operating system | Windows XP
+| Processor | Any 1 GHz CPU
+| Memory | 1 mb
+| Hard drive space | 4.5 kb free
