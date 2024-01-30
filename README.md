@@ -16,7 +16,7 @@ Enjoy! ;)
 
 | Requirement | Minimum |
 |---|---|
-| Operating system | Windows XP
+| Operating system | Windows 95
 | Processor | Any 1 GHz CPU
 | Memory | 1 mb
 | Hard drive space | 4.5 kb free
