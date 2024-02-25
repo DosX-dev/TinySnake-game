@@ -17,7 +17,7 @@
 #define SPEED_DELAY 100
 
 #define true 0b1          //
-#define false 0b0         // I know there are predefined values ​​like TRUE, FALSE, NULL
+#define false 0b0         // I know there are predefined values ​​like TRUE, FALSE, NULL etc
 #define short 32768       // But I prefer using these values ​​in small case.
 #define null (void *)0b0  //
 
@@ -213,7 +213,8 @@ void logic() {
 */
 }
 
-// int getBitness() { return sizeof(void *) == 0x4 ? 32 : 64; } // Oh ok, legacy code
+// Oh ok, legacy code. Really bad code
+// int getBitness() { return sizeof(void *) == 0x4 ? 32 : 64; }
 
 #if defined(__i386__)  // i386 (32-bit)
 #define bitness 32
@@ -223,20 +224,26 @@ void logic() {
 #define bitness 32
 #endif
 
-int main() {
+void main() {
     char title[short];
 
     sprintf(title, "Tiny Snake (x%d)", bitness);
 
     SetConsoleTitleA(title);
 
-    int buffer[] = {WIDTH * 2 + 1, HEIGHT + 8};
+    int buffer[] = {(WIDTH * 2) + 1, HEIGHT + 8};
 
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleScreenBufferSize(hConsole, (COORD){buffer[0], buffer[1]});
 
     SMALL_RECT windowSize = {0, 0, buffer[0] - 1, buffer[1] - 1};
     SetConsoleWindowInfo(hConsole, true, &windowSize);
+
+    SetConsoleScreenBufferSize(hConsole, (COORD){buffer[0], buffer[1]});
+
+    CONSOLE_CURSOR_INFO cursorinfo = {0};
+    cursorinfo.dwSize = 1;
+    cursorinfo.bVisible = FALSE;  // Turns off the blinking cursor (Thank to https://github.com/R32GTT)
+    SetConsoleCursorInfo(hConsole, &cursorinfo);
 
     printf("Coded by DosX-dev (GitHub)\nUSE ONLY ENGLISH KEYBOARD LAYOUT! (WASD)\n");
 
@@ -265,7 +272,7 @@ int main() {
 
     while (true) {
         if (tolower(_getch()) == 'x') {
-            return 0;
+            return;
         }
     }
 }
